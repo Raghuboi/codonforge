@@ -2,7 +2,7 @@ use crate::optimize::OptimizationResult;
 
 /// Format output in LinearDesign-compatible stdout style
 pub fn format_stdout(result: &OptimizationResult) -> String {
-    let structure: String = std::iter::repeat('.').take(result.rna.len()).collect();
+    let structure = ".".repeat(result.rna.len());
 
     format!(
         "Input protein: {}\nmRNA sequence:  {}\nmRNA structure: {}\nmRNA folding free energy: nan kcal/mol; mRNA CAI: {:.3}\nRuntime: {:.4} seconds",
@@ -18,13 +18,11 @@ pub fn format_stdout(result: &OptimizationResult) -> String {
 pub fn format_fasta(name: &str, rna: &str, line_width: usize) -> String {
     let mut fasta = format!(">{}\n", name);
 
-    let mut count = 0;
-    for c in rna.chars() {
+    for (count, c) in rna.chars().enumerate() {
         if count > 0 && count % line_width == 0 {
             fasta.push('\n');
         }
         fasta.push(c);
-        count += 1;
     }
 
     fasta

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::codon::{aa_to_codons, codon_frequency, max_freq_for_aa};
+use crate::codon::{codon_frequency, max_freq_for_aa};
 
 /// Compute the Codon Adaptation Index (CAI) for an mRNA sequence.
 ///
@@ -18,7 +18,7 @@ pub fn compute_cai(
     rna: &str,
     codon_table: &HashMap<String, (char, f64)>,
 ) -> Result<f64, anyhow::Error> {
-    if rna.len() % 3 != 0 {
+    if !rna.len().is_multiple_of(3) {
         return Err(anyhow::anyhow!(
             "RNA length {} is not a multiple of 3",
             rna.len()
@@ -68,54 +68,10 @@ pub fn compute_cai(
     let cai = (log_sum / valid_count as f64).exp();
 
     // CAI should be in [0, 1]
-    if cai < 0.0 || cai > 1.0 {
+    if !(0.0..=1.0).contains(&cai) {
         return Err(anyhow::anyhow!("CAI out of expected range [0, 1]: {}", cai));
     }
 
-    Ok(cai)
-}
-
-/// Compute CAI for a protein sequence by finding the optimal codon for each AA
-pub fn compute_cai_from_protein(
-    protein: &str,
-    codon_table: &HashMap<String, (char, f64)>,
-) -> Result<f64, anyhow::Error> {
-    // For each amino acid, find the most frequent codon
-    let mut log_sum = 0.0_f64;
-    let mut valid_count = 0usize;
-
-    for aa in protein.chars() {
-        let Some(codons) = aa_to_codons(aa) else {
-            return Err(anyhow::anyhow!("Invalid amino acid: {}", aa));
-        };
-
-        let max_f = max_freq_for_aa(codon_table, aa);
-        if max_f <= 0.0 {
-            return Ok(0.0);
-        }
-
-        // Find the best codon for this amino acid
-        let best_freq = codons
-            .iter()
-            .map(|&c| codon_frequency(codon_table, c))
-            .fold(0.0_f64, f64::max);
-
-        let w = best_freq / max_f;
-        // For the best codon, w should be 1.0 (since best_freq == max_f)
-        // But we still compute it for consistency
-        if w <= 0.0 {
-            return Ok(0.0);
-        }
-
-        log_sum += w.ln();
-        valid_count += 1;
-    }
-
-    if valid_count == 0 {
-        return Err(anyhow::anyhow!("Empty protein sequence"));
-    }
-
-    let cai = (log_sum / valid_count as f64).exp();
     Ok(cai)
 }
 
@@ -139,21 +95,6 @@ mod tests {
         assert!(
             cai >= 0.9,
             "Greedy optimized sequence should have CAI >= 0.9, got {}",
-            cai
-        );
-    }
-
-    #[test]
-    fn test_cai_from_protein() {
-        let codon_table = load_codon_usage("data/codon_usage_freq_table_human.csv").unwrap();
-
-        let cai = compute_cai_from_protein("MNDTEAI", &codon_table).unwrap();
-        assert!(cai > 0.0);
-        assert!(cai <= 1.0);
-        // Optimal codons for each AA should give CAI = 1.0
-        assert!(
-            (cai - 1.0).abs() < 0.001,
-            "Optimal CAI should be ~1.0, got {}",
             cai
         );
     }

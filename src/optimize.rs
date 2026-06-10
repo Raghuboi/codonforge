@@ -150,7 +150,7 @@ mod tests {
         let result = optimize("MNDTEAI", &codon_table).unwrap();
 
         assert_eq!(result.protein, "MNDTEAI");
-        assert!(result.rna.len() % 3 == 0);
+        assert!(result.rna.len().is_multiple_of(3));
         assert!(result.cai > 0.0);
         assert!(result.cai <= 1.0);
         assert!(result.runtime_secs >= 0.0);

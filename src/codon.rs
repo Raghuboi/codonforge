@@ -107,7 +107,7 @@ pub fn is_valid_aa(c: char) -> bool {
 
 /// Translate an RNA sequence (string of codons) back to protein
 pub fn translate_rna(rna: &str) -> Result<String, anyhow::Error> {
-    if rna.len() % 3 != 0 {
+    if !rna.len().is_multiple_of(3) {
         return Err(anyhow::anyhow!(
             "RNA length {} is not a multiple of 3",
             rna.len()
@@ -128,26 +128,31 @@ pub fn translate_rna(rna: &str) -> Result<String, anyhow::Error> {
     Ok(protein)
 }
 
-/// Codon usage table entry
-#[derive(Debug, Clone)]
-pub struct CodonUsage {
-    pub codon: String,
-    pub aa: char,
-    pub frequency: f64,
+/// Load the bundled human codon usage table.
+pub fn load_default_codon_usage() -> Result<HashMap<String, (char, f64)>, anyhow::Error> {
+    parse_codon_usage_content(
+        include_str!("../data/codon_usage_freq_table_human.csv"),
+        "bundled data/codon_usage_freq_table_human.csv",
+    )
 }
 
-/// Load codon usage table from CSV path
-/// CSV format: codon, aa, frequency (RNA U notation, may have BOM and \r\n line endings)
-/// Returns HashMap of codon -> (amino_acid, frequency)
+/// Load codon usage table from CSV path.
+/// CSV format: codon, aa, frequency (RNA U notation, may have BOM and CRLF line endings).
+/// Returns HashMap of codon -> (amino_acid, frequency).
 pub fn load_codon_usage(path: &str) -> Result<HashMap<String, (char, f64)>, anyhow::Error> {
-    // Read file and strip BOM + Windows line endings
     let content = std::fs::read_to_string(path)
-        .with_context(|| format!("Failed to read codon table: {}", path))?;
+        .with_context(|| format!("Failed to read codon table: {path}"))?;
+    parse_codon_usage_content(&content, path)
+}
 
-    // Strip UTF-8 BOM if present
-    let content = content.strip_prefix('\u{feff}').unwrap_or(&content);
+fn parse_codon_usage_content(
+    content: &str,
+    source: &str,
+) -> Result<HashMap<String, (char, f64)>, anyhow::Error> {
+    // Strip UTF-8 BOM if present.
+    let content = content.strip_prefix('\u{feff}').unwrap_or(content);
 
-    // Strip \r from \r\n line endings
+    // Strip CR from CRLF line endings.
     let content = content.replace('\r', "");
 
     let mut table: HashMap<String, (char, f64)> = HashMap::new();
@@ -161,8 +166,9 @@ pub fn load_codon_usage(path: &str) -> Result<HashMap<String, (char, f64)>, anyh
         let fields: Vec<&str> = trimmed.split(',').collect();
         if fields.len() < 3 {
             eprintln!(
-                "Warning: skipping malformed line {}: '{}'",
+                "Warning: skipping malformed line {} in {}: '{}'",
                 line_num + 1,
+                source,
                 trimmed
             );
             continue;
@@ -172,20 +178,20 @@ pub fn load_codon_usage(path: &str) -> Result<HashMap<String, (char, f64)>, anyh
         let aa_str = fields[1].trim();
         let freq_str = fields[2].trim();
 
-        // Normalize T -> U for DNA-style tables
+        // Normalize T -> U for DNA-style tables.
         let codon = codon.replace('T', "U");
 
-        // Skip header-like rows or malformed entries
+        // Skip header-like rows or malformed entries.
         if codon.len() != 3 || !codon.chars().all(|c| "AUGC".contains(c)) {
             continue;
         }
 
-        // Parse frequency
         let freq: f64 = freq_str.parse().with_context(|| {
             format!(
-                "Failed to parse frequency '{}' on line {}",
+                "Failed to parse frequency '{}' on line {} in {}",
                 freq_str,
-                line_num + 1
+                line_num + 1,
+                source
             )
         })?;
 
@@ -198,10 +204,10 @@ pub fn load_codon_usage(path: &str) -> Result<HashMap<String, (char, f64)>, anyh
         table.insert(codon, (aa, freq));
     }
 
-    // We need exactly 64 codons (including stops)
     if table.len() < 61 {
         return Err(anyhow::anyhow!(
-            "Codon table only loaded {} codons, expected at least 61",
+            "Codon table from {} only loaded {} codons, expected at least 61",
+            source,
             table.len()
         ));
     }

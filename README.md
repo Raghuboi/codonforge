@@ -1,46 +1,63 @@
 # CodonForge
 
-A simple, clean-room Rust CLI codon optimizer for mRNA sequences.
+> v0 research preview: greedy CAI optimizer only. Not suitable for production mRNA design or clinical use.
 
-## What is CodonForge?
+[![Rust](https://img.shields.io/badge/rust-1.96%2B-blue)](https://www.rust-lang.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-CodonForge reads a protein sequence and generates a synonymous mRNA sequence using
-greedy highest-frequency human codons. It computes the Codon Adaptation Index (CAI)
-internally and outputs results in a format compatible with existing mRNA benchmarking
-pipelines.
+CodonForge is a clean-room Rust CLI for protein-faithful mRNA coding-sequence optimization research. It reads a protein sequence, chooses synonymous human codons with a greedy highest-frequency strategy, computes Codon Adaptation Index (CAI), and writes mRNA FASTA for downstream benchmarking.
 
-This is **not** a LinearDesign clone. It does not implement:
-- O(N³) dynamic programming
-- Turner energy model secondary structure prediction
-- GPU-accelerated batch scoring
-- Any code derived from LinearDesign source
+CodonForge v0 is intentionally small. It is useful as a deterministic baseline and benchmark integration point, not as a complete mRNA design system.
 
-## v0 Scope
+## What this is not
 
-- Greedy CAI optimization (highest-frequency codon per amino acid)
-- CAI computation (Sharp & Li 1987 method)
-- Protein sequence validation
-- mRNA FASTA output for downstream benchmarking
-- LinearDesign-compatible stdout format
+CodonForge v0 does not implement:
 
-## Install / Build
+- LinearDesign algorithm parity
+- O(N³) codon-constrained folding dynamic programming
+- Turner energy secondary-structure scoring
+- internal MFE prediction
+- GPU acceleration
+- UTR design
+- clinical or therapeutic recommendations
+
+Minimum free energy (MFE), GC%, repeat metrics, and other biological scores should be computed by external benchmark tools such as ViennaRNA-backed evaluators.
+
+## Install
+
+### From source
 
 ```bash
+git clone https://github.com/raghuboi/codonforge.git
+cd codonforge
 cargo build --release
 ```
 
-The binary will be at `target/release/codonforge`.
+The binary will be at:
 
-## Usage
+```bash
+target/release/codonforge
+```
 
-### Plain protein sequence from stdin
+### From crates.io
+
+```bash
+cargo install codonforge
+```
+
+This will be available after the first crates.io release.
+
+## Quickstart
+
+From a source checkout:
 
 ```bash
 echo "MNDTEAI" | cargo run --release --
 ```
 
-Output:
-```
+Expected output shape:
+
+```text
 Input protein: MNDTEAI
 mRNA sequence:  AUGAACGACACCGAGGCCAUC
 mRNA structure: .....................
@@ -48,17 +65,32 @@ mRNA folding free energy: nan kcal/mol; mRNA CAI: 1.000
 Runtime: 0.0000 seconds
 ```
 
+Runtime varies by machine.
+
+## Usage
+
+### Protein sequence from stdin
+
+```bash
+echo "MNDTEAI" | codonforge
+```
+
+From a source checkout, use:
+
+```bash
+echo "MNDTEAI" | cargo run --release --
+```
+
 ### Protein FASTA input
 
 ```bash
-cargo run --release -- \
-  --input path/to/protein.fasta
+codonforge --input path/to/protein.fasta
 ```
 
-### Output mRNA FASTA for benchmarking
+### Write pure mRNA FASTA
 
 ```bash
-cargo run --release -- \
+codonforge \
   --input path/to/protein.fasta \
   --fasta-out path/to/output.fasta
 ```
@@ -66,62 +98,106 @@ cargo run --release -- \
 ### Custom codon usage table
 
 ```bash
-cargo run --release -- \
+codonforge \
   --input path/to/protein.fasta \
   --codonusage path/to/codon_table.csv
 ```
 
-### CLI Flags
+Codon usage tables must contain three columns:
 
-| Flag | Description |
-|------|-------------|
-| `-i, --input <FILE>` | Input protein FASTA file path |
-| `-f, --fasta-out <FILE>` | Output mRNA FASTA file path |
-| `-c, --codonusage <FILE>` | Codon usage table CSV path (default: `data/codon_usage_freq_table_human.csv`) |
-| `-l, --lambda <FLOAT>` | Structure weighting parameter (parsed but ignored in v0) |
-| `-v, --verbose` | Verbose output |
-
-## Benchmark Integration
-
-CodonForge integrates with the research benchmark pipeline:
-
-```bash
-# Run benchmark on all four RP-relevant targets
-cd /home/raghuboi/Desktop/projects/research/experiments/gflownet-mrna-rp
-../../.venv/bin/python scripts/run_codonforge_v0.py
+```text
+codon,amino_acid,frequency
 ```
 
-This produces:
-- `results/codonforge_v0/` - mRNA FASTA files for each target
-- `results/codonforge_v0_summary.json` - Per-target metrics summary
-- `results/benchmark_results_v7.csv` - Combined V5 + CodonForge results
+Codons may use RNA `U` or DNA `T` notation. DNA notation is normalized to RNA.
+
+## CLI flags
+
+| Flag | Description |
+| --- | --- |
+| `-i, --input <FILE>` | Input protein FASTA file path. If omitted, CodonForge reads a plain protein sequence from stdin. |
+| `-f, --fasta-out <FILE>` | Output pure mRNA FASTA file path. |
+| `-c, --codonusage <FILE>` | Codon usage table CSV path. Default: `data/codon_usage_freq_table_human.csv`. |
+| `-l, --lambda <FLOAT>` | Structure weighting parameter reserved for v1; ignored in v0. |
+| `-v, --verbose` | Print diagnostic information to stderr. |
+| `-h, --help` | Print help. |
+| `-V, --version` | Print version. |
+
+## Validation
+
+Run the local quality gates:
+
+```bash
+cargo fmt --check
+cargo clippy --all-targets --all-features -- -D warnings
+cargo test
+cargo doc --no-deps
+```
+
+Run a FASTA smoke test:
+
+```bash
+cargo run --release -- \
+  --input examples/toy/input.fasta \
+  --fasta-out /tmp/codonforge-toy.fasta
+```
+
+## Benchmark integration
+
+CodonForge can be used by external benchmark pipelines that evaluate mRNA outputs with a consistent metric suite. A companion research workflow uses CodonForge on retinitis-pigmentosa-relevant proteins including RHO, PRPF31, RPE65, and RPGR-ORF15.
+
+Expected integration pattern:
+
+1. Build CodonForge with `cargo build --release`.
+2. Run CodonForge on protein FASTA inputs with `--fasta-out`.
+3. Evaluate the generated mRNA FASTA files with an external metric pipeline such as ViennaRNA-backed scripts.
+4. Compare CAI, MFE, GC%, U%, repeat density, and protein-fidelity metrics against other methods.
+
+This repository does not require the external research benchmark to run the core CLI.
 
 ## Limitations
 
-- **Greedy CAI optimizer only**: Selects highest-frequency codon per amino acid. No consideration of secondary structure, GC content, or other constraints.
-- **Not LinearDesign algorithm parity**: Does not implement Turner energy, DP, or GPU features.
-- **No internal MFE**: Minimum free energy is reported as `nan` and must be computed externally (e.g., ViennaRNA).
-- **No GPU in v0**: Single-threaded CPU-only optimization.
-- **Computational research only**: No clinical or therapeutic claims. This tool is for computational benchmarking and prioritization only.
+- Greedy CAI optimizer only: v0 selects the highest-frequency codon for each amino acid independently.
+- High GC content: pure greedy CAI optimization produced ~81-90% GC on the initial RP benchmark targets. v1 is expected to add GC/U/repeat-aware beam search.
+- No internal MFE: stdout reports `nan` for folding free energy. Compute MFE externally.
+- No LinearDesign parity: CodonForge does not implement LinearDesign's dynamic programming or energy model.
+- No GPU in v0: optimization is CPU-only and deterministic.
+- Computational research only: no clinical, diagnostic, or therapeutic claims.
 
 ## Roadmap
 
-| Version | Feature |
-|---------|---------|
-| v0 | Greedy CAI optimizer (current) |
-| v1 | Beam search with CAI + GC constraints |
-| v2 | GPU batch candidate scoring |
-| v3 | Approximate/exact DP research |
+| Version | Scope |
+| --- | --- |
+| v0 | Greedy CAI optimizer, FASTA I/O, CAI, protein-fidelity validation |
+| v1 | Beam search with CAI + GC/U/repeat constraints |
+| v2 | GPU batch candidate scoring for large beams |
+| v3 | Approximate or exact DP research if benchmarks justify it |
 
-## License
+## Glossary
 
-MIT
+- CAI (Codon Adaptation Index): A measure of how closely codon usage matches a reference codon table. Values are in `(0, 1]`, with higher values indicating closer match to preferred codons.
+- MFE (Minimum Free Energy): RNA secondary-structure stability score, usually computed by tools such as ViennaRNA. More negative values indicate more stable predicted structures.
+- GC%: Percentage of guanine and cytosine nucleotides in a sequence.
+- Synonymous codon: A different codon encoding the same amino acid.
+- Clean-room implementation: Software written without copying another project's source code.
 
 ## Citation
 
-When using CodonForge in research, please cite:
+If you use CodonForge in research, cite this repository using `CITATION.cff`.
 
-- Sharp PM, Li WH (1987). The codon adaptation index—a measure of directional synonymous codon usage bias. *Nucleic Acids Research*.
-- LinearDesign / Ward et al. (2025) for mRNA design benchmarking context.
+Foundational reference for CAI:
 
-CodonForge is a clean-room implementation and does not claim algorithmic equivalence to LinearDesign.
+```bibtex
+@article{sharp1987codon,
+  title = {The codon adaptation index--a measure of directional synonymous codon usage bias},
+  author = {Sharp, Paul M. and Li, Wen-Hsiung},
+  journal = {Nucleic Acids Research},
+  volume = {15},
+  number = {5},
+  pages = {1281--1295},
+  year = {1987},
+  doi = {10.1093/nar/15.5.1281}
+}
+```
+
+CodonForge may be benchmarked alongside LinearDesign and related mRNA design tools, but it does not claim algorithmic equivalence to them.

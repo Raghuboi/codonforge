@@ -15,7 +15,13 @@ use std::collections::HashMap;
 #[derive(Parser, Debug)]
 #[command(name = "codonforge")]
 #[command(version = "0.1.0")]
-#[command(about = "Greedy codon optimizer for mRNA sequences", long_about = None)]
+#[command(
+    about = "Greedy codon optimizer for mRNA sequences",
+    long_about = "CodonForge reads a protein sequence and generates a synonymous mRNA sequence \
+using greedy highest-frequency human codons. It computes the Codon Adaptation Index \
+(CAI) and can write pure FASTA output for downstream benchmarking.\n\n\
+This is computational research software, not a clinical or therapeutic design tool."
+)]
 struct Cli {
     /// Input protein FASTA file path
     #[arg(short, long)]
@@ -29,7 +35,7 @@ struct Cli {
     #[arg(short = 'c', long = "codonusage")]
     codonusage: Option<String>,
 
-    /// Structure weighting parameter (parsed but ignored in v0)
+    /// Structure weighting parameter (reserved for v1; ignored in v0)
     #[arg(short = 'l', long = "lambda")]
     lambda: Option<f64>,
 
@@ -38,32 +44,26 @@ struct Cli {
     verbose: bool,
 }
 
-fn default_codon_table_path() -> String {
-    // Try to find the codon table relative to the binary or in the data/ directory
-    let candidates = vec![
-        "data/codon_usage_freq_table_human.csv",
-        "/home/raghuboi/Desktop/projects/codonforge/data/codon_usage_freq_table_human.csv",
-    ];
-
-    for path in &candidates {
-        if std::path::Path::new(path).exists() {
-            return path.to_string();
-        }
-    }
-
-    "data/codon_usage_freq_table_human.csv".to_string()
-}
-
 fn run() -> Result<(), anyhow::Error> {
     let cli = Cli::parse();
 
-    // Load codon usage table
-    let codon_path = cli.codonusage.unwrap_or_else(default_codon_table_path);
-    let codon_table: HashMap<String, (char, f64)> =
-        codon::load_codon_usage(&codon_path).context("Failed to load codon usage table")?;
+    // Load codon usage table.
+    let (codon_table, codon_source): (HashMap<String, (char, f64)>, String) =
+        if let Some(codon_path) = cli.codonusage {
+            (
+                codon::load_codon_usage(&codon_path).context("Failed to load codon usage table")?,
+                codon_path,
+            )
+        } else {
+            (
+                codon::load_default_codon_usage()
+                    .context("Failed to load bundled codon usage table")?,
+                "bundled data/codon_usage_freq_table_human.csv".to_string(),
+            )
+        };
 
     if cli.verbose {
-        eprintln!("Loaded {} codons from {}", codon_table.len(), codon_path);
+        eprintln!("Loaded {} codons from {}", codon_table.len(), codon_source);
     }
 
     // Read protein input
@@ -123,9 +123,12 @@ fn run() -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-fn main() {
-    if let Err(e) = run() {
-        eprintln!("Error: {}", e);
-        std::process::exit(1);
+fn main() -> std::process::ExitCode {
+    match run() {
+        Ok(()) => std::process::ExitCode::SUCCESS,
+        Err(e) => {
+            eprintln!("Error: {e}");
+            std::process::ExitCode::FAILURE
+        }
     }
 }

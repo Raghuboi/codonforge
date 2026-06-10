@@ -29,7 +29,7 @@ pub fn parse_protein_fasta_str(content: &str) -> Result<Vec<FastaEntry>, anyhow:
             continue;
         }
 
-        if trimmed.starts_with('>') {
+        if let Some(stripped) = trimmed.strip_prefix('>') {
             // Save previous entry if exists
             if let Some(header) = current_header.take() {
                 if !current_seq.is_empty() {
@@ -41,7 +41,7 @@ pub fn parse_protein_fasta_str(content: &str) -> Result<Vec<FastaEntry>, anyhow:
                 }
             }
             // New header
-            current_header = Some(trimmed[1..].trim().to_string());
+            current_header = Some(stripped.trim().to_string());
         } else {
             // Sequence line - strip whitespace and uppercase
             for c in trimmed.chars() {

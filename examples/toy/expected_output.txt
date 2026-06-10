@@ -1,0 +1,4 @@
+Input protein: MNDTEAI
+mRNA sequence:  AUGAACGACACCGAGGCCAUC
+mRNA structure: .....................
+mRNA folding free energy: nan kcal/mol; mRNA CAI: 1.000

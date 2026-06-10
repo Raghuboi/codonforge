@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use CodonForge in research, please cite it as below."
+type: software
+title: "CodonForge"
+version: "0.1.0"
+authors:
+  - family-names: "Prabhakar"
+    given-names: "Raghunath"
+repository-code: "https://github.com/raghuboi/codonforge"
+license: "MIT"
+date-released: "2026-06-10"
+abstract: "CodonForge is a clean-room Rust CLI for mRNA codon optimization research. Version 0.1.0 implements deterministic greedy highest-frequency human codon selection, Codon Adaptation Index calculation, protein-fidelity validation, and FASTA output for downstream computational benchmarks."
+keywords:
+  - bioinformatics
+  - codon-optimization
+  - mrna
+  - codon-adaptation-index
+  - rust
+references:
+  - type: article
+    title: "The codon adaptation index--a measure of directional synonymous codon usage bias"
+    authors:
+      - family-names: "Sharp"
+        given-names: "Paul M."
+      - family-names: "Li"
+        given-names: "Wen-Hsiung"
+    year: 1987
+    journal: "Nucleic Acids Research"
+    volume: 15
+    issue: 5
+    start: 1281
+    end: 1295
+    doi: "10.1093/nar/15.5.1281"

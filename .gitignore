@@ -3,8 +3,10 @@ target/
 **/*.rs.bk
 *.pdb
 
-# Cargo
-Cargo.lock
+# Local agent/advisor artifacts
+.agents/
+plans/
+skills-lock.json
 
 # Editor / OS
 .idea/
