@@ -2,9 +2,9 @@
 
 ## `codon_usage_freq_table_human.csv`
 
-Human codon usage frequency table used by CodonForge v0 for greedy codon selection and CAI computation.
+Human codon usage frequency table used by CodonForge for greedy codon selection, beam-search scoring, and CAI computation.
 
-### Format
+## Format
 
 CSV with three columns:
 
@@ -17,25 +17,33 @@ Notes:
 - Codons use RNA notation (`U` instead of `T`).
 - Stop codons use `*` as the amino acid.
 - The table contains 64 entries: 61 sense codons and 3 stop codons.
-- Frequencies are normalized per amino-acid family in the bundled table.
+- Frequencies are normalized per amino-acid family and sum to approximately 1.0 for each amino acid.
 
-### Provenance
+## Provenance
 
-The bundled file was copied from the local research benchmark fixture:
+Source: Kazusa Codon Usage Database
 
-```text
-experiments/gflownet-mrna-rp/methods/LinearDesign/codon_usage_freq_table_human.csv
-```
+- URL: https://www.kazusa.or.jp/codon/cgi-bin/showcodon.cgi?species=9606&aa=1&style=N
+- Organism: Homo sapiens `[gbpri]`
+- Database record: 93,487 CDS entries, 40,662,582 codons
+- Accessed: 2026-06-10
+- Local raw capture: `data/kazusa-homo-sapiens-codon-usage.txt`
 
-That benchmark fixture originated from the LinearDesign-compatible research workflow used to evaluate CodonForge v0. The table is included to make the CLI runnable from a clean checkout and to preserve benchmark reproducibility.
+Conversion steps:
 
-The exact upstream biological database for these normalized frequencies is not independently verified in this repository. Before using CodonForge results in a publication, record the codon usage table source used in the experiment and consider replacing this bundled table with a directly cited database export such as Kazusa/Codon Usage Database or an NCBI-derived table.
+1. Parsed Kazusa fields: codon, amino acid, source fraction, per-thousand frequency, and raw count.
+2. Kept RNA notation from Kazusa output.
+3. Converted stop codons to amino acid `*`.
+4. Recomputed `frequency` from raw counts normalized within each amino-acid family.
+5. Wrote clean UTF-8 CSV without BOM.
 
-### License note
+The source fractions in Kazusa output are rounded to two decimals. CodonForge uses the raw counts to compute higher-precision within-family frequencies.
 
-The Rust code in this repository is MIT licensed. Codon usage data may be subject to the terms of its original database source. If you redistribute modified codon tables, include their source URL, access date, and license/terms in this directory.
+## License note
 
-### Implementation notes
+The Rust code in this repository is MIT licensed. Codon usage data comes from the publicly accessible Kazusa Codon Usage Database; cite the source URL and access date when using CodonForge results in publications.
+
+## Implementation notes
 
 - CodonForge strips a UTF-8 BOM if present.
 - DNA-style tables using `T` are normalized to RNA `U` during parsing.

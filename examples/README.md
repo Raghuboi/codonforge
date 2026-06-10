@@ -16,5 +16,15 @@ cd examples/toy
 | --- | --- | --- | --- |
 | [`toy/`](toy/) | Minimal seven-amino-acid protein (`MNDTEAI`) | Bundled FASTA | Human-readable stdout |
 | [`rho/`](rho/) | RHO protein workflow for benchmark users | External FASTA | mRNA FASTA |
+| [`benchmark/`](benchmark/) | Four RP-relevant proteins with greedy and beam strategies | Bundled protein FASTA | stdout + mRNA FASTA files |
 
-The RHO example intentionally does not bundle disease-target data. Pass your own protein FASTA file or use a benchmark dataset you are licensed to use.
+## Benchmark
+
+Run the 4-gene mini-benchmark:
+
+```bash
+cargo build --release
+./examples/benchmark/run.sh
+```
+
+This runs CodonForge on RHO, PRPF31, RPE65, and RPGR-ORF15 using both `greedy` and `beam` strategies. The benchmark is a reproducibility smoke test for computational research, not a therapeutic design recommendation.

@@ -2,7 +2,6 @@ use std::io::Write;
 use std::process::Command;
 
 fn codonforge_cmd() -> Command {
-    // Use cargo run for testing
     let mut cmd = Command::new("cargo");
     cmd.args(["run", "--release", "--bin", "codonforge", "--"]);
     cmd
@@ -20,6 +19,8 @@ fn test_cli_help() {
     assert!(stdout.contains("codonforge"));
     assert!(stdout.contains("--input"));
     assert!(stdout.contains("--fasta-out"));
+    assert!(stdout.contains("--strategy"));
+    assert!(stdout.contains("beam"));
 }
 
 #[test]
@@ -31,7 +32,6 @@ fn test_cli_stdin_input() {
         .spawn()
         .expect("Failed to spawn codonforge");
 
-    // Write to stdin
     {
         let stdin = child.stdin.as_mut().expect("Failed to get stdin");
         stdin
@@ -50,7 +50,6 @@ fn test_cli_stdin_input() {
 
 #[test]
 fn test_cli_fasta_input() {
-    // Create a temporary FASTA file with unique name
     let temp_dir = std::env::temp_dir();
     let input_path = temp_dir.join(format!("test_input_{}.fasta", std::process::id()));
 
@@ -74,7 +73,6 @@ fn test_cli_fasta_input() {
     }
 
     assert!(success, "codonforge should succeed");
-    let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(stdout.contains("Input protein: MNDTEAI"));
 }
 
@@ -98,10 +96,9 @@ fn test_cli_fasta_output() {
 
     assert!(output.status.success());
 
-    // Check that output file exists and contains FASTA
     let content = std::fs::read_to_string(&output_path).expect("Failed to read output file");
     assert!(content.starts_with(">"));
-    assert!(content.contains("AUG")); // Start codon
+    assert!(content.contains("AUG"));
 
     std::fs::remove_file(&output_path).ok();
 }
@@ -115,7 +112,6 @@ fn test_cli_invalid_amino_acid() {
         .spawn()
         .expect("Failed to spawn codonforge");
 
-    // Write invalid amino acid
     {
         let stdin = child.stdin.as_mut().expect("Failed to get stdin");
         stdin.write_all(b"MXN\n").expect("Failed to write to stdin");
@@ -129,24 +125,94 @@ fn test_cli_invalid_amino_acid() {
 }
 
 #[test]
-fn test_cli_real_fasta() {
-    // Test with actual research target
-    let target_path =
-        "/home/raghuboi/Desktop/projects/research/experiments/gflownet-mrna-rp/target-rho.fasta";
-
-    // Skip if file doesn't exist (e.g., in CI)
-    if !std::path::Path::new(target_path).exists() {
-        return;
-    }
-
+fn test_cli_toy_fasta() {
     let output = codonforge_cmd()
         .arg("--input")
-        .arg(target_path)
+        .arg("examples/toy/input.fasta")
         .output()
         .expect("Failed to execute codonforge");
 
     assert!(output.status.success());
     let stdout = String::from_utf8_lossy(&output.stdout);
-    assert!(stdout.contains("Input protein:"));
+    assert!(stdout.contains("Input protein: MNDTEAI"));
     assert!(stdout.contains("mRNA CAI:"));
+}
+
+#[test]
+fn test_golden_toy_output() {
+    let output = codonforge_cmd()
+        .arg("--input")
+        .arg("examples/toy/input.fasta")
+        .output()
+        .expect("Failed to execute codonforge");
+
+    assert!(output.status.success());
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    assert!(
+        stdout.contains("AUGAACGACACCGAGGCCAUC"),
+        "Greedy optimizer should produce deterministic output for MNDTEAI"
+    );
+    assert!(
+        stdout.contains("mRNA CAI: 1.000"),
+        "Greedy optimizer should achieve CAI=1.000 with bundled table"
+    );
+    assert!(stdout.contains("CodonForge strategy: greedy"));
+    assert!(stdout.contains("Runtime:"));
+}
+
+#[test]
+fn test_cli_beam_strategy() {
+    let mut child = codonforge_cmd()
+        .args([
+            "--strategy",
+            "beam",
+            "--target-gc",
+            "50",
+            "--target-u",
+            "25",
+        ])
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .expect("Failed to spawn codonforge");
+
+    {
+        let stdin = child.stdin.as_mut().expect("Failed to get stdin");
+        stdin
+            .write_all(b"MNDTEAI\n")
+            .expect("Failed to write to stdin");
+    }
+
+    let output = child.wait_with_output().expect("Failed to get output");
+    assert!(output.status.success());
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("CodonForge strategy: beam"));
+    assert!(stdout.contains("GC%:"));
+    assert!(stdout.contains("U%:"));
+}
+
+#[test]
+fn test_cli_lambda_warning() {
+    let mut child = codonforge_cmd()
+        .args(["--lambda", "0.5"])
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .expect("Failed to spawn codonforge");
+
+    {
+        let stdin = child.stdin.as_mut().expect("Failed to get stdin");
+        stdin
+            .write_all(b"MNDTEAI\n")
+            .expect("Failed to write to stdin");
+    }
+
+    let output = child.wait_with_output().expect("Failed to get output");
+    assert!(output.status.success());
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(stderr.contains("--lambda"));
+    assert!(stderr.contains("ignored"));
 }

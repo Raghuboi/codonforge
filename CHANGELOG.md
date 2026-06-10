@@ -6,9 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-### Planned
-- GC-aware beam-search optimizer for v1.
-- Optional GPU batch candidate scoring for later releases.
+### Added
+- v1 beam-search optimizer with configurable CAI, GC%, U%, and repeat-penalty objective.
+- CLI flags for `--strategy`, `--beam-width`, `--target-gc`, `--target-u`, and objective weights.
+- GC%, U%, and repeat-penalty metrics in stdout output.
+- Public RP mini-benchmark in `examples/benchmark/` with four protein FASTA targets.
+- Golden CLI tests and beam-search fidelity tests.
+- JOSS paper scaffold and code of conduct.
+
+### Changed
+- Replaced the LinearDesign-derived bundled codon usage table with a Kazusa Codon Usage Database Homo sapiens export normalized from raw counts.
+- Documented CAI table dependency and codon table provenance.
+- `--lambda` now emits an explicit compatibility warning when supplied.
 
 ## [0.1.0] - 2026-06-10
 

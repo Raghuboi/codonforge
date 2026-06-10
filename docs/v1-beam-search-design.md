@@ -2,7 +2,7 @@
 
 CodonForge v0 is a deterministic greedy CAI optimizer. It is useful as a baseline but produces high-GC sequences on RP benchmark targets because the highest-frequency human codons are often GC-rich.
 
-v1 should add a deterministic CPU beam-search optimizer that trades a small amount of CAI for more realistic sequence composition.
+v1 adds a deterministic CPU beam-search optimizer that trades a small amount of CAI for more realistic sequence composition.
 
 ## Goals
 
@@ -13,7 +13,7 @@ v1 should add a deterministic CPU beam-search optimizer that trades a small amou
 - Avoid LinearDesign parity claims.
 - Avoid O(N³) folding DP and Turner energy implementation.
 
-## Proposed CLI
+## CLI
 
 ```bash
 codonforge \
@@ -42,19 +42,19 @@ weight_u = 0.01
 weight_repeat = 0.05
 ```
 
-## Scoring sketch
+## Scoring
 
 For each candidate partial mRNA sequence:
 
 ```text
 score =
-  + weight_cai * running_log_cai_score
+  + weight_cai * mean_log_cai_score
   - weight_gc * abs(current_gc_percent - target_gc)
   - weight_u * abs(current_u_percent - target_u)
   - weight_repeat * homopolymer_repeat_penalty
 ```
 
-Implementation detail: maintain cumulative counts rather than recomputing metrics from the full string at every beam expansion.
+Implementation detail: CodonForge maintains cumulative GC count, U count, log-CAI sum, and adjacent-repeat penalty, then scores mean log-CAI and mean repeat penalty so sequence length does not swamp composition terms for each beam candidate rather than recomputing metrics from the full string at every expansion.
 
 ## Algorithm
 
@@ -96,3 +96,21 @@ Success criteria for first v1 pass:
 - UTR design
 - Pareto-front output
 - clinical interpretation
+
+
+## Implementation status
+
+Implemented in `src/optimize.rs` and exposed through `src/main.rs`.
+
+Key public CLI flags:
+
+- `--strategy greedy|beam`
+- `--beam-width`
+- `--target-gc`
+- `--target-u`
+- `--weight-cai`
+- `--weight-gc`
+- `--weight-u`
+- `--weight-repeat`
+
+The implementation is deterministic and CPU-only. It does not compute MFE or make structure-aware claims.

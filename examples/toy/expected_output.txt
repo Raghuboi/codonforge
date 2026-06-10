@@ -2,3 +2,5 @@ Input protein: MNDTEAI
 mRNA sequence:  AUGAACGACACCGAGGCCAUC
 mRNA structure: .....................
 mRNA folding free energy: nan kcal/mol; mRNA CAI: 1.000
+CodonForge strategy: greedy; GC%: 57.14; U%: 9.52; repeat penalty: 4.0
+Runtime: 0.0000 seconds

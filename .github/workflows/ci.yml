@@ -49,6 +49,16 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo doc --no-deps
 
+  examples:
+    name: examples smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release
+      - run: ./examples/toy/run.sh
+      - run: ./examples/benchmark/run.sh
+
   publish-dry-run:
     name: cargo publish --dry-run
     runs-on: ubuntu-latest

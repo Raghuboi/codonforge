@@ -15,12 +15,14 @@ include = [
   "/examples",
   "/docs",
   "/data",
+  "/paper",
   "/Cargo.toml",
   "/Cargo.lock",
   "/README.md",
   "/LICENSE",
   "/CHANGELOG.md",
   "/CITATION.cff",
+  "/CODE_OF_CONDUCT.md",
 ]
 
 [package.metadata.docs.rs]

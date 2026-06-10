@@ -155,10 +155,4 @@ mod tests {
         let err = validate_protein_sequence("MNXTEAI").unwrap_err();
         assert!(err.to_string().contains("Invalid amino acid"));
     }
-
-    #[test]
-    fn test_read_protein_from_stdin() {
-        // This test would need mocked stdin, so we skip it for now
-        // Integration test in tests/cli.rs covers this
-    }
 }
