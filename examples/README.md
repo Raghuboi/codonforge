@@ -6,8 +6,9 @@ These examples verify CodonForge from a source checkout.
 
 ```bash
 cargo build --release
-cd examples/toy
-./run.sh
+./examples/toy/run.sh
+./examples/rl/run.sh
+./examples/benchmark/run.sh
 ```
 
 ## Examples
@@ -16,6 +17,7 @@ cd examples/toy
 | --- | --- | --- | --- |
 | [`toy/`](toy/) | Minimal seven-amino-acid protein (`MNDTEAI`) | Bundled FASTA | Human-readable stdout |
 | [`rho/`](rho/) | RHO protein workflow for benchmark users | External FASTA | mRNA FASTA |
+| [`rl/`](rl/) | Minimal RL/GFlowNet toy loop (Python optional) | Bundled toy protein FASTA | stdout + sampled mRNA |
 | [`benchmark/`](benchmark/) | Four RP-relevant proteins with greedy and beam strategies | Bundled protein FASTA | stdout + mRNA FASTA files |
 
 ## Benchmark

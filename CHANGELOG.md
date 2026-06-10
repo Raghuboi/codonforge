@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+- Added an opt-in RL/GFlowNet research starting path: `docs/rl-research-start.md` plus runnable `examples/rl/` toy scaffold. No Rust API, dependencies, model weights, or default behavior changed.
+
 ## [0.2.0] - 2026-06-10
 
 ### Added

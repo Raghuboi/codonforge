@@ -57,6 +57,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo build --release
       - run: ./examples/toy/run.sh
+      - run: ./examples/rl/run.sh
       - run: ./examples/benchmark/run.sh
 
   publish-dry-run:
