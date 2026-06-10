@@ -3,10 +3,20 @@ target/
 **/*.rs.bk
 *.pdb
 
+# Local release/build artifacts
+dist/
+*.profraw
+coverage/
+
 # Local agent/advisor artifacts
+AGENTS.md
 .agents/
 plans/
 skills-lock.json
+
+# Local temp files
+*.tmp
+*.log
 
 # Editor / OS
 .idea/

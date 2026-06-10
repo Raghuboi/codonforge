@@ -4,6 +4,7 @@
 
 [![Rust](https://img.shields.io/badge/rust-1.96%2B-blue)](https://www.rust-lang.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![CI](https://github.com/raghuboi/codonforge/actions/workflows/ci.yml/badge.svg)](https://github.com/raghuboi/codonforge/actions/workflows/ci.yml)
 
 CodonForge is a clean-room Rust CLI for protein-faithful mRNA coding-sequence optimization research. It reads a protein sequence, chooses synonymous human codons with a greedy highest-frequency strategy, computes Codon Adaptation Index (CAI), and writes mRNA FASTA for downstream benchmarking.
 
@@ -41,11 +42,7 @@ target/release/codonforge
 
 ### From crates.io
 
-```bash
-cargo install codonforge
-```
-
-This will be available after the first crates.io release.
+CodonForge is not published to crates.io yet. Until the first release is published, use the source checkout path above.
 
 ## Quickstart
 
@@ -180,6 +177,14 @@ This repository does not require the external research benchmark to run the core
 - GC%: Percentage of guanine and cytosine nucleotides in a sequence.
 - Synonymous codon: A different codon encoding the same amino acid.
 - Clean-room implementation: Software written without copying another project's source code.
+
+## Project files
+
+- `CONTRIBUTING.md` — contribution workflow and required checks.
+- `SECURITY.md` — security reporting policy.
+- `CHANGELOG.md` — release history.
+- `CITATION.cff` — machine-readable citation metadata.
+- `docs/v1-beam-search-design.md` — planned GC-aware beam-search design.
 
 ## Citation
 
