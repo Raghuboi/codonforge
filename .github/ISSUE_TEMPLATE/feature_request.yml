@@ -1,0 +1,39 @@
+name: Feature request
+description: Propose a computational research feature
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        CodonForge is computational research software. Please avoid clinical, diagnostic, or therapeutic claims.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What computational or research workflow problem does this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the smallest useful implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation plan
+      description: What benchmark, unit test, or CLI smoke test would prove this works?
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources / references
+      description: Papers, datasets, or tools this proposal builds on.

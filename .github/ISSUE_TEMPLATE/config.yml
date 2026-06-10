@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Scientific or clinical advice
+    url: https://github.com/Raghuboi/codonforge#what-this-is-not
+    about: CodonForge is computational research software and does not provide clinical guidance.

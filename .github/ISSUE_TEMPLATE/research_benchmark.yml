@@ -1,0 +1,37 @@
+name: Research benchmark request
+description: Suggest a benchmark, baseline, or dataset for CodonForge
+title: "benchmark: "
+labels: ["benchmark", "research"]
+body:
+  - type: input
+    id: benchmark_name
+    attributes:
+      label: Benchmark or dataset name
+    validations:
+      required: true
+  - type: input
+    id: source_url
+    attributes:
+      label: Source URL
+      description: Official paper, dataset, or repository URL.
+    validations:
+      required: true
+  - type: textarea
+    id: relevance
+    attributes:
+      label: Why it matters
+      description: What does this benchmark test that current examples do not?
+    validations:
+      required: true
+  - type: textarea
+    id: access
+    attributes:
+      label: Access and license notes
+      description: Public/private, license, terms, expected size, required credentials.
+    validations:
+      required: true
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Metrics
+      description: CAI, GC%, MFE, U%, repeats, protein fidelity, runtime, etc.

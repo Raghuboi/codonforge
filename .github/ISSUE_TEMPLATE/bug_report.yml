@@ -1,0 +1,52 @@
+name: Bug report
+description: Report a reproducible CodonForge bug
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please keep reports computational and reproducible.
+  - type: input
+    id: version
+    attributes:
+      label: CodonForge version or commit
+      description: Run `codonforge --version` or `git rev-parse --short HEAD`.
+      placeholder: "codonforge 0.1.0 / abc1234"
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      description: Exact command that reproduces the issue.
+      render: bash
+    validations:
+      required: true
+  - type: textarea
+    id: input
+    attributes:
+      label: Minimal input
+      description: Minimal protein sequence, FASTA snippet, or codon table row needed to reproduce. Do not paste private or unpublished biological data.
+      render: text
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Rust version, install method.
+      value: |
+        - OS:
+        - Rust:
+        - Install method:
