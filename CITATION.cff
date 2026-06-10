@@ -2,14 +2,14 @@ cff-version: 1.2.0
 message: "If you use CodonForge in research, please cite it as below."
 type: software
 title: "CodonForge"
-version: "0.1.0"
+version: "0.2.0"
 authors:
   - family-names: "Prabhakar"
     given-names: "Raghunath"
 repository-code: "https://github.com/raghuboi/codonforge"
 license: "MIT"
 date-released: "2026-06-10"
-abstract: "CodonForge is a clean-room Rust CLI for mRNA codon optimization research. Version 0.1.0 implements deterministic greedy highest-frequency human codon selection, Codon Adaptation Index calculation, protein-fidelity validation, and FASTA output for downstream computational benchmarks."
+abstract: "CodonForge is a clean-room Rust CLI for mRNA codon optimization research. Version 0.2.0 adds deterministic beam-search optimization with CAI, GC%, U%, and repeat-penalty objectives, plus a public RP mini-benchmark and Kazusa-derived human codon usage provenance."
 keywords:
   - bioinformatics
   - codon-optimization

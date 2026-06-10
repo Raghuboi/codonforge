@@ -15,7 +15,7 @@ use std::collections::HashMap;
 /// constraints.
 #[derive(Parser, Debug)]
 #[command(name = "codonforge")]
-#[command(version = "0.1.0")]
+#[command(version)]
 #[command(
     about = "Codon optimizer for mRNA sequence research",
     long_about = "CodonForge reads a protein sequence and generates a synonymous mRNA sequence. \
