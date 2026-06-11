@@ -29,6 +29,7 @@ pub fn format_fasta(name: &str, rna: &str, line_width: usize) -> String {
         fasta.push(c);
     }
 
+    fasta.push('\n');
     fasta
 }
 
@@ -84,6 +85,7 @@ mod tests {
 
         assert!(fasta.starts_with(">test\n"));
         assert!(fasta.contains("AUGAACGACACCGAGGCCAUU"));
+        assert!(fasta.ends_with('\n'), "FASTA must end with a newline");
     }
 
     #[test]
@@ -109,6 +111,10 @@ mod tests {
         let content = fs::read_to_string(&path).unwrap();
         assert!(content.starts_with(">test\n"));
         assert!(content.contains("AUGAACGAC"));
+        assert!(
+            content.ends_with('\n'),
+            "Written FASTA must end with a newline"
+        );
 
         fs::remove_file(path).ok();
     }

@@ -2,7 +2,7 @@
 name = "codonforge"
 version = "0.2.0"
 edition = "2021"
-rust-version = "1.96"
+rust-version = "1.70"
 description = "Clean-room Rust CLI for protein-faithful mRNA codon optimization research"
 license = "MIT"
 repository = "https://github.com/raghuboi/codonforge"
@@ -12,7 +12,20 @@ categories = ["command-line-utilities", "science::bioinformatics"]
 include = [
   "/src",
   "/tests",
-  "/examples",
+  "/examples/README.md",
+  "/examples/toy",
+  "/examples/rho",
+  "/examples/benchmark/.gitignore",
+  "/examples/benchmark/README.md",
+  "/examples/benchmark/expected",
+  "/examples/benchmark/run.sh",
+  "/examples/benchmark/targets",
+  "/examples/rl/.gitignore",
+  "/examples/rl/README.md",
+  "/examples/rl/expected_output.txt",
+  "/examples/rl/input.fasta",
+  "/examples/rl/python_loop.py",
+  "/examples/rl/run.sh",
   "/docs",
   "/data",
   "/paper",
@@ -23,6 +36,8 @@ include = [
   "/CHANGELOG.md",
   "/CITATION.cff",
   "/CODE_OF_CONDUCT.md",
+  "/CONTRIBUTING.md",
+  "/SECURITY.md",
 ]
 
 [package.metadata.docs.rs]

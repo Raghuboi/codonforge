@@ -2,7 +2,7 @@
 
 > Research preview: clean-room Rust CLI for protein-faithful mRNA coding-sequence optimization. Not suitable for production mRNA design or clinical use.
 
-[![Rust](https://img.shields.io/badge/rust-1.96%2B-blue)](https://www.rust-lang.org)
+[![Rust](https://img.shields.io/badge/rust-1.70%2B-blue)](https://www.rust-lang.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![CI](https://github.com/raghuboi/codonforge/actions/workflows/ci.yml/badge.svg)](https://github.com/raghuboi/codonforge/actions/workflows/ci.yml)
 

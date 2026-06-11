@@ -399,7 +399,7 @@ mod tests {
 
         assert_eq!(result.protein, "MNDTEAI");
         assert_eq!(result.strategy, Strategy::Greedy);
-        assert!(result.rna.len().is_multiple_of(3));
+        assert_eq!(result.rna.len() % 3, 0);
         assert!(result.cai > 0.0);
         assert!(result.cai <= 1.0);
         assert!((0.0..=100.0).contains(&result.gc_percent));

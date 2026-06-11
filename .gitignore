@@ -8,14 +8,30 @@ dist/
 *.profraw
 coverage/
 
-# Local agent/advisor artifacts
+# Local agent/advisor artifacts (never commit internal agent work)
 AGENTS.md
 .agents/
 plans/
+advisor-plans/
+__reports__/
+reports/
+prompts/
+runlogs/
+notes/
+scratch/
+tmp/
 skills-lock.json
+*.prompt.md
+*PROMPT*.md
+*AUDIT*.md
+*RUNLOG*.md
+*REPORT*.md
+handoff*.md
+notes*.md
 
-# Local generated benchmark output
+# Local generated benchmark / example output
 examples/benchmark/output/
+examples/rl/output/
 
 # Local temp files
 *.tmp

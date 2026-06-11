@@ -107,7 +107,7 @@ pub fn is_valid_aa(c: char) -> bool {
 
 /// Translate an RNA sequence (string of codons) back to protein
 pub fn translate_rna(rna: &str) -> Result<String, anyhow::Error> {
-    if !rna.len().is_multiple_of(3) {
+    if rna.len() % 3 != 0 {
         return Err(anyhow::anyhow!(
             "RNA length {} is not a multiple of 3",
             rna.len()

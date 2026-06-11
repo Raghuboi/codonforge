@@ -48,3 +48,11 @@ The Rust code in this repository is MIT licensed. Codon usage data comes from th
 - CodonForge strips a UTF-8 BOM if present.
 - DNA-style tables using `T` are normalized to RNA `U` during parsing.
 - Malformed non-codon rows are skipped; at least 61 codons must load successfully.
+
+## Integrity
+
+SHA256 of `data/codon_usage_freq_table_human.csv` at this revision:
+
+```text
+ffae15bf8fe1fa2ea73500df3defb33ddd84dff567ec9d102c350d89105b0bc3  data/codon_usage_freq_table_human.csv
+```

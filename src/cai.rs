@@ -18,7 +18,7 @@ pub fn compute_cai(
     rna: &str,
     codon_table: &HashMap<String, (char, f64)>,
 ) -> Result<f64, anyhow::Error> {
-    if !rna.len().is_multiple_of(3) {
+    if rna.len() % 3 != 0 {
         return Err(anyhow::anyhow!(
             "RNA length {} is not a multiple of 3",
             rna.len()
